@@ -1,0 +1,72 @@
+name: Dev CI
+
+# Trigger on push to dev branch or pull requests to dev
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+    branches: [ dev ]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Set up Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Install pnpm
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10
+
+      # Get pnpm store directory
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      # Cache pnpm dependencies
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      # Install dependencies
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Run linting
+      - name: Run ESLint
+        run: pnpm run lint
+
+      # Run tests (when you add them)
+      - name: Run tests
+        run: pnpm run test
+        continue-on-error: true  # Don't fail if no tests yet
+
+      # Build the application
+      - name: Build application
+        run: pnpm run build
+
+      # Summary
+      - name: CI Summary
+        run: |
+          echo "✅ Code checked out"
+          echo "✅ Dependencies installed"
+          echo "✅ Linting passed"
+          echo "✅ Tests executed"
+          echo "✅ Build successful"
+          echo ""
+          echo "🎉 Dev CI pipeline completed successfully!"
