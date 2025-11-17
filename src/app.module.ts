@@ -3,6 +3,11 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { CategoriesModule } from './categories/categories.module';
+import { ProductsModule } from './products/products.module';
+import { UploadModule } from './upload/upload.module';
 
 @Module({
   imports: [
@@ -20,8 +25,15 @@ import { AppService } from './app.service';
       password: process.env.DB_PASSWORD || 'postgres',
       database: process.env.DB_DATABASE || 'novaworks',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true, // Auto-create tables (disable in production!)
+      migrations: [__dirname + '/migrations/*{.ts,.js}'],
+      synchronize: false, // Disabled - using migrations instead
+      migrationsRun: true, // Auto-run migrations on startup
     }),
+    AuthModule,
+    UsersModule,
+    CategoriesModule,
+    ProductsModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],
