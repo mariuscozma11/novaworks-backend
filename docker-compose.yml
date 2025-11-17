@@ -1,0 +1,52 @@
+services:
+  # PostgreSQL Database Service
+  postgres:
+    image: postgres:16-alpine
+    container_name: novaworks-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: novaworks
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - novaworks-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # NestJS Application Service
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: novaworks-app
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DB_DATABASE: novaworks
+      PORT: 3000
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - novaworks-network
+
+# Named volumes for data persistence
+volumes:
+  postgres_data:
+    driver: local
+
+# Network for service communication
+networks:
+  novaworks-network:
+    driver: bridge
