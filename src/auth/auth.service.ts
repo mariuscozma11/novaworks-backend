@@ -1,8 +1,9 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { User, UserRole } from '../users/entities/user.entity';
 
 export interface JwtPayload {
@@ -46,6 +47,35 @@ export class AuthService {
 
   async validateUser(payload: JwtPayload) {
     return this.usersService.findById(payload.sub);
+  }
+
+  async changePassword(userId: string, changePasswordDto: ChangePasswordDto) {
+    // Get user with password
+    const user = await this.usersService.findByIdWithPassword(userId);
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    // Verify current password
+    const isPasswordValid = await this.usersService.validatePassword(
+      changePasswordDto.currentPassword,
+      user.password,
+    );
+
+    if (!isPasswordValid) {
+      throw new BadRequestException('Current password is incorrect');
+    }
+
+    // Check if new password is different
+    if (changePasswordDto.currentPassword === changePasswordDto.newPassword) {
+      throw new BadRequestException('New password must be different from current password');
+    }
+
+    // Update password
+    await this.usersService.updatePassword(userId, changePasswordDto.newPassword);
+
+    return { message: 'Password changed successfully' };
   }
 
   private generateToken(user: Partial<User>): string {

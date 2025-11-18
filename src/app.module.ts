@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -29,6 +30,14 @@ import { UploadModule } from './upload/upload.module';
       synchronize: false, // Disabled - using migrations instead
       migrationsRun: true, // Auto-run migrations on startup
     }),
+    // Configure rate limiting
+    ThrottlerModule.forRoot([
+      {
+        name: 'default',
+        ttl: 60000, // 60 seconds
+        limit: 100, // 100 requests per minute
+      },
+    ]),
     AuthModule,
     UsersModule,
     CategoriesModule,
@@ -36,6 +45,12 @@ import { UploadModule } from './upload/upload.module';
     UploadModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: 'APP_GUARD',
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}
