@@ -15,7 +15,12 @@ export class CreateProductDto {
   @IsString()
   @MinLength(2)
   @MaxLength(200)
-  name: string;
+  nameEn: string;
+
+  @IsString()
+  @MinLength(2)
+  @MaxLength(200)
+  nameRo: string;
 
   @IsString()
   @MinLength(2)
@@ -24,7 +29,11 @@ export class CreateProductDto {
 
   @IsString()
   @MinLength(10)
-  description: string;
+  descriptionEn: string;
+
+  @IsString()
+  @MinLength(10)
+  descriptionRo: string;
 
   @IsNumber()
   @Min(0)

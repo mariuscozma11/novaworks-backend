@@ -4,7 +4,12 @@ export class CreateCategoryDto {
   @IsString()
   @MinLength(2)
   @MaxLength(100)
-  name: string;
+  nameEn: string;
+
+  @IsString()
+  @MinLength(2)
+  @MaxLength(100)
+  nameRo: string;
 
   @IsString()
   @MinLength(2)
@@ -13,7 +18,11 @@ export class CreateCategoryDto {
 
   @IsString()
   @IsOptional()
-  description?: string;
+  descriptionEn?: string;
+
+  @IsString()
+  @IsOptional()
+  descriptionRo?: string;
 
   @IsString()
   @IsOptional()

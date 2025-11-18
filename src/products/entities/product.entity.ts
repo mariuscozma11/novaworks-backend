@@ -17,13 +17,19 @@ export class Product {
   id: string;
 
   @Column()
-  name: string;
+  nameEn: string;
+
+  @Column()
+  nameRo: string;
 
   @Column({ unique: true })
   slug: string;
 
   @Column({ type: 'text' })
-  description: string;
+  descriptionEn: string;
+
+  @Column({ type: 'text' })
+  descriptionRo: string;
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   price: number;

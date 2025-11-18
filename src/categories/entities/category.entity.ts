@@ -14,13 +14,19 @@ export class Category {
   id: string;
 
   @Column()
-  name: string;
+  nameEn: string;
+
+  @Column()
+  nameRo: string;
 
   @Column({ unique: true })
   slug: string;
 
   @Column({ type: 'text', nullable: true })
-  description: string;
+  descriptionEn: string;
+
+  @Column({ type: 'text', nullable: true })
+  descriptionRo: string;
 
   @Column({ nullable: true })
   imageUrl: string;
