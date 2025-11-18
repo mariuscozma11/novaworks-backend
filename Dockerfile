@@ -22,14 +22,14 @@ RUN pnpm run build
 # Stage 2: Production
 FROM node:20-alpine AS production
 
-# Install pnpm
-RUN npm install -g pnpm
-
 # Set working directory
 WORKDIR /app
 
 # Copy package files
 COPY package.json pnpm-lock.yaml ./
+
+# Install pnpm globally
+RUN npm install -g pnpm
 
 # Install only production dependencies
 RUN pnpm install --prod --frozen-lockfile
