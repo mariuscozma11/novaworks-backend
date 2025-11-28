@@ -9,6 +9,7 @@ import { UsersModule } from './users/users.module';
 import { CategoriesModule } from './categories/categories.module';
 import { ProductsModule } from './products/products.module';
 import { UploadModule } from './upload/upload.module';
+import { CartModule } from './cart/cart.module';
 import typeormConfig from './typeorm.config';
 
 @Module({
@@ -33,6 +34,7 @@ import typeormConfig from './typeorm.config';
     CategoriesModule,
     ProductsModule,
     UploadModule,
+    CartModule,
   ],
   controllers: [AppController],
   providers: [

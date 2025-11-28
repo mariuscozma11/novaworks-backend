@@ -44,31 +44,11 @@ export class AuthService {
     };
   }
 
-  async login(loginDto: LoginDto) {
-    const user = await this.usersService.findByEmail(loginDto.email);
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    const isPasswordValid = await this.usersService.validatePassword(
-      loginDto.password,
-      user.password,
-    );
-
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    // Check if email is verified
-    if (!user.emailVerified) {
-      throw new UnauthorizedException(
-        'Please verify your email before logging in. Check your inbox for the verification link.',
-      );
-    }
-
-    const { password, ...result } = user;
-    const access_token = this.generateToken(result as User);
-    return { user: result, access_token };
+  async login(user: User) {
+    // User is already validated by LocalStrategy
+    // Just generate and return JWT token
+    const access_token = this.generateToken(user);
+    return { user, access_token };
   }
 
   async validateUser(payload: JwtPayload) {

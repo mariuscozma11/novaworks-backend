@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { LocalStrategy } from './strategies/local.strategy';
 import { TokenService } from './services/token.service';
 import { UsersModule } from '../users/users.module';
 import { EmailModule } from '../email/email.module';
@@ -30,7 +31,7 @@ import { PasswordResetToken } from './entities/password-reset-token.entity';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, TokenService],
+  providers: [AuthService, JwtStrategy, LocalStrategy, TokenService],
   exports: [AuthService, JwtStrategy, PassportModule],
 })
 export class AuthModule {}
