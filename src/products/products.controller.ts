@@ -7,10 +7,13 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { FilterProductsDto } from './dto/filter-products.dto';
+import { ProductsResponseDto } from './dto/products-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -32,22 +35,27 @@ export class ProductsController {
     return this.productsService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productsService.findOne(id);
+  @Get('search')
+  searchProducts(@Query() filters: FilterProductsDto): Promise<ProductsResponseDto> {
+    return this.productsService.searchProducts(filters);
   }
 
-  @Patch(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    return this.productsService.update(id, updateProductDto);
+  @Get(':slug')
+  findOne(@Param('slug') slug: string) {
+    return this.productsService.findBySlug(slug);
   }
 
-  @Delete(':id')
+  @Patch(':slug')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  remove(@Param('id') id: string) {
-    return this.productsService.remove(id);
+  update(@Param('slug') slug: string, @Body() updateProductDto: UpdateProductDto) {
+    return this.productsService.updateBySlug(slug, updateProductDto);
+  }
+
+  @Delete(':slug')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  remove(@Param('slug') slug: string) {
+    return this.productsService.removeBySlug(slug);
   }
 }
