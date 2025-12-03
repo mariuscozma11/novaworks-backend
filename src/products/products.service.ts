@@ -134,7 +134,14 @@ export class ProductsService {
   }
 
   async updateBySlug(slug: string, updateProductDto: UpdateProductDto): Promise<Product> {
-    const product = await this.findBySlug(slug);
+    // Fetch product without relations to avoid TypeORM trying to update related entities
+    const product = await this.productsRepository.findOne({
+      where: { slug },
+    });
+
+    if (!product) {
+      throw new NotFoundException(`Product with slug "${slug}" not found`);
+    }
 
     if (updateProductDto.slug && updateProductDto.slug !== product.slug) {
       const existing = await this.productsRepository.findOne({
@@ -166,6 +173,7 @@ export class ProductsService {
     Object.assign(product, productData);
     await this.productsRepository.save(product);
 
+    // Return the updated product with all relations
     return this.findBySlug(product.slug);
   }
 
