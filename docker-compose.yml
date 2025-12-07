@@ -20,32 +20,29 @@ services:
       timeout: 5s
       retries: 5
 
-  # NestJS Application Service
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: novaworks-app
+  # Redis Cache Service
+  redis:
+    image: redis:7-alpine
+    container_name: novaworks-redis
     restart: unless-stopped
     ports:
-      - "3001:3000"
-    environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_USERNAME: postgres
-      DB_PASSWORD: postgres
-      DB_DATABASE: novaworks
-      PORT: 3000
-      NODE_ENV: production
-    depends_on:
-      postgres:
-        condition: service_healthy
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
     networks:
       - novaworks-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: redis-server --appendonly yes
 
 # Named volumes for data persistence
 volumes:
   postgres_data:
+    driver: local
+  redis_data:
     driver: local
 
 # Network for service communication
