@@ -1,9 +1,8 @@
-import { Controller, Post, Body, Get, Put, UseGuards, Query, Request } from '@nestjs/common';
+import { Controller, Post, Body, Get, Put, UseGuards, Request } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
-import { ResendVerificationDto } from './dto/resend-verification.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -41,17 +40,6 @@ export class AuthController {
     @Body() changePasswordDto: ChangePasswordDto,
   ) {
     return this.authService.changePassword(user.id, changePasswordDto);
-  }
-
-  @Post('resend-verification')
-  @Throttle({ default: { limit: 3, ttl: 3600000 } }) // 3 requests per hour
-  async resendVerification(@Body() dto: ResendVerificationDto) {
-    return this.authService.resendVerificationEmail(dto.email);
-  }
-
-  @Get('verify-email')
-  async verifyEmail(@Query('token') token: string) {
-    return this.authService.verifyEmail(token);
   }
 
   @Post('forgot-password')

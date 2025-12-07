@@ -28,13 +28,6 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    // Check if email is verified
-    if (!user.emailVerified) {
-      throw new UnauthorizedException(
-        'Please verify your email before logging in. Check your inbox for the verification link.',
-      );
-    }
-
     // Return user without password
     const { password: _, ...result } = user;
     return result;

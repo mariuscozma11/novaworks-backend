@@ -28,19 +28,13 @@ export class AuthService {
   async register(registerDto: RegisterDto) {
     const user = await this.usersService.create(registerDto);
 
-    // Generate verification token
-    const token = await this.tokenService.generateEmailVerificationToken(user.id);
-
-    // Send verification email
-    const emailSent = await this.emailService.sendVerificationEmail(user as User, token);
-
-    if (!emailSent) {
-      this.logger.warn(`Failed to send verification email to ${user.email}`);
-    }
+    // Generate JWT token for immediate login
+    const access_token = this.generateToken(user);
 
     return {
       user,
-      message: 'Registration successful. Please check your email to verify your account.',
+      access_token,
+      message: 'Registration successful!',
     };
   }
 
@@ -82,49 +76,6 @@ export class AuthService {
     await this.usersService.updatePassword(userId, changePasswordDto.newPassword);
 
     return { message: 'Password changed successfully' };
-  }
-
-  async resendVerificationEmail(email: string) {
-    const user = await this.usersService.findByEmail(email);
-
-    if (!user) {
-      // Don't reveal if email exists
-      return {
-        message: 'If that email is registered, a verification link has been sent.',
-      };
-    }
-
-    if (user.emailVerified) {
-      return {
-        message: 'Email is already verified. You can log in.',
-      };
-    }
-
-    // Generate new token
-    const token = await this.tokenService.generateEmailVerificationToken(user.id);
-
-    // Send email
-    const emailSent = await this.emailService.sendVerificationEmail(user, token);
-
-    if (!emailSent) {
-      this.logger.error(`Failed to resend verification email to ${email}`);
-      throw new BadRequestException('Failed to send verification email. Please try again later.');
-    }
-
-    return {
-      message: 'If that email is registered, a verification link has been sent.',
-    };
-  }
-
-  async verifyEmail(token: string) {
-    const user = await this.tokenService.verifyEmailToken(token);
-
-    this.logger.log(`Email verified for user: ${user.email}`);
-
-    return {
-      success: true,
-      message: 'Email verified successfully! You can now log in.',
-    };
   }
 
   async forgotPassword(email: string) {
